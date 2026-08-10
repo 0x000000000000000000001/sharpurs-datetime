@@ -52,11 +52,14 @@ modifyTime f (DateTime d t) = DateTime d (f t)
 modifyTimeF :: forall f. Functor f => (Time -> f Time) -> DateTime -> f DateTime
 modifyTimeF f (DateTime d t) = DateTime d <$> f t
 
+mkDateRec :: Int -> Int -> Int -> Int -> Int -> Int -> Int -> DateRec
+mkDateRec y mo d h mi s ms = { year: y, month: mo, day: d, hour: h, minute: mi, second: s, millisecond: ms }
+
 -- | Adjusts a date/time value with a duration offset. `Nothing` is returned
 -- | if the resulting date would be outside of the range of valid dates.
 adjust :: forall d. Duration d => d -> DateTime -> Maybe DateTime
 adjust d dt =
-  adjustImpl Just Nothing (fromDuration d) (toRecord dt) >>= \rec ->
+  adjustImpl mkDateRec Just Nothing (fromDuration d) (toRecord dt) >>= \rec ->
     DateTime
       <$> join (exactDate <$> toEnum rec.year <*> toEnum rec.month <*> toEnum rec.day)
       <*> (Time <$> toEnum rec.hour <*> toEnum rec.minute <*> toEnum rec.second <*> toEnum rec.millisecond)
@@ -92,7 +95,8 @@ toRecord (DateTime d t) =
 foreign import calcDiff :: Fn2 DateRec DateRec Milliseconds
 
 foreign import adjustImpl
-  :: (forall a. a -> Maybe a)
+  :: (Int -> Int -> Int -> Int -> Int -> Int -> Int -> DateRec)
+  -> (forall a. a -> Maybe a)
   -> (forall a. Maybe a)
   -> Milliseconds
   -> DateRec
