@@ -1,23 +1,24 @@
 using System;
 
+
 namespace Data.Date;
 
 public static class FFI {
-    private static DateTime CreateDate(long y, long m, long d) {
-        return new DateTime((int)y, (int)m, (int)d, 0, 0, 0, DateTimeKind.Utc);
+    private static global::System.DateTime CreateDate(int y, int m, int d) {
+        return new global::System.DateTime((int)y, (int)m, (int)d, 0, 0, 0, global::System.DateTimeKind.Utc);
     }
     
-    public static object CanonicalDateImpl(Func<long, Func<long, Func<long, object>>> ctor, long y, long m, long d) {
+    public static object CanonicalDateImpl(dynamic ctor, int y, int m, int d) {
         var date = CreateDate(y, m, d);
-        return ctor(date.Year)(date.Month)(date.Day);
+        return ctor.Invoke((object)date.Year).Invoke((object)date.Month).Invoke((object)date.Day);
     }
     
-    public static long CalcWeekday(long y, long m, long d) {
+    public static int CalcWeekday(int y, int m, int d) {
         var date = CreateDate(y, m, d);
-        return (long)date.DayOfWeek;
+        return (int)date.DayOfWeek;
     }
     
-    public static double CalcDiff(long y1, long m1, long d1, long y2, long m2, long d2) {
+    public static double CalcDiff(int y1, int m1, int d1, int y2, int m2, int d2) {
         var dt1 = CreateDate(y1, m1, d1);
         var dt2 = CreateDate(y2, m2, d2);
         return (dt1 - dt2).TotalMilliseconds;
